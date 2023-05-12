@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style type="text/css">
+		body {
+			background-color: black;
+			color: white;
+			font-size: 0.8em;
+		}
+		.left {
+			margin-right: 850px;
+			width: 400px;
+		}
+		.right {
+			position: absolute;
+			top: 0px;
+			left: 450px;
+			width: 800px;
+			height: 800px;
+		}
+	</style>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+	<title>Firefly</title>
+
+	<script id="firefly-vertex-shader" type="x-shader/x-vertex">
+	#version 300 es
+
+	in vec3 aPositionFirefly;
+	in vec3 aColorFirefly;
+	uniform mat4 transposeFirefly;
+	uniform mat4 projectionFirefly;
+	out vec4 vColorFirefly;
+
+	void
+	main()
+	{
+		gl_Position = projectionFirefly * transposeFirefly * vec4(aPositionFirefly, 1);
+		vColorFirefly = vec4(aColorFirefly, 1.0);
+	}
+	</script>
+
+	<script id="firefly-fragment-shader" type="x-shader/x-fragment">
+	#version 300 es
+	precision mediump float;
+
+	in vec4 vColorFirefly;
+	out vec4 fColorFirefly;
+
+	void
+	main()
+	{
+	    fColorFirefly = vColorFirefly;
+	}
+	</script>
+
+	<script id="glow-vertex-shader" type="x-shader/x-vertex">
+	#version 300 es
+
+	in vec3 aPositionGlow;
+	uniform vec3 colorGlow;
+	uniform mat4 transposeGlow;
+	uniform float alphaGlow;
+	uniform mat4 scaleGlow;
+	uniform mat4 projectionGlow;
+	out vec4 vColorGlow;
+
+	void
+	main()
+	{
+		gl_Position = projectionGlow * transposeGlow * scaleGlow * vec4(aPositionGlow, 1);
+		vColorGlow = vec4(colorGlow, alphaGlow);
+	}
+	</script>
+
+	<script id="glow-fragment-shader" type="x-shader/x-fragment">
+	#version 300 es
+	precision mediump float;
+
+	in vec4 vColorGlow;
+	out vec4 fColorGlow;
+
+	void
+	main()
+	{
+	    fColorGlow = vColorGlow;
+	}
+	</script>
+
+
+	<script src="./Common/initShaders.js"></script>
+	<script src="./Common/MVnew.js"></script>
+	<script src="firefly.js"></script>
+</head>
+
+<body>
+	<div class="left">
+		<h1>Project Firefly</h1>
+		A 3D firefly self-synchronizing simulator. Nobody plays the role of the glowing leader. It is a totally distributed synchronization. 
+		<br>
+		Each firefly has a glowing clock to control its glowing frequency. Every time a firefly lights up, it will nudge its neighbors' clocks to make their next glowing a little bit earlier. Then, that is it. That is how the order comes from the chaos.
+		<br>
+		<h3>You may use WSAD to rotate the camera when using first person point of view.</h3>
+		<p>
+			<div id="numFireflyValue">#firefly: 256</div>
+			<input type="range" name="numFirefly" id="numFirefly" min="5" max="512" value="256" class="slider">
+		</p>
+		<p>
+			<div id="colorGlowHueValue">glowing hue: 60</div>
+			<input type="range" name="colorGlowHue" id="colorGlowHue" min="0" max="360" value="60" class="slider">
+		</p>
+		<p>
+			<div id="glowSizeValue">glowing size: 100</div>
+			<input type="range" name="glowSize" id="glowSize" min="50" max="150" value="100" class="slider">
+		</p>
+		<p>
+			<div id="glowFrequencyValue">glowing frequency: 8</div>
+			<input type="range" name="glowFrequency" id="glowFrequency" min="4" max="16" value="8" class="slider">
+		</p>
+		<p>
+			<div id="nudgeRangeFactorValue">nudge range: 32</div> 
+			<input type="range" name="nudgeRangeFactor" id="nudgeRangeFactor" min="4" max="64" value="32" class="slider">
+		</p>
+		<p>
+			<div id="nudgeSpeedFactorValue">nudge amount: 8</div> 
+			<input type="range" name="nudgeSpeedFactor" id="nudgeSpeedFactor" min="4" max="16" value="8" class="slider">
+		</p>
+		<p>
+			<div id="fovValue">first person FOV: 90</div> 
+			<input type="range" name="fov" id="fov" min="30" max="150" value="90" class="slider">
+		</p>
+		<p>
+			<div id="cameraYawValue">first person camera yaw: 0</div> 
+			<input type="range" name="cameraYaw" id="cameraYaw" min="-180" max="180" value="0" class="slider">
+		</p>
+		<p>
+			<div id="cameraPitchValue">first person camera pitch: 0</div> 
+			<input type="range" name="cameraPitch" id="cameraPitch" min="-90" max="90" value="0" class="slider">
+		</p>
+		<button onclick="switchView()">Switch View</button>
+		<button onclick="useDefaultConfig()">Default Config.</button>
+		<button onclick="buildAllDrawAll()">Refresh!</button>
+	</div>
+	<div class="right">
+		<canvas id="gl-canvas" width="850" height="850">
+		Oops ... your browser doesn't support the HTML5 canvas element
+		</canvas>
+	</div>
+
+</body>
+</html>
